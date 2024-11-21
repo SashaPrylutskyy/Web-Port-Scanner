@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Port Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Web Port Scanner</h1>
+        <form method="POST">
+            <label for="ips">IP Addresses (comma-separated):</label>
+            <input type="text" id="ips" name="ips" placeholder="Enter IP Addresses (e.g., 127.0.0.1,127.0.0.2)" required>
+            
+            <label for="start_port">Start Port:</label>
+            <input type="number" id="start_port" name="start_port" value="1" min="1" max="65535" required>
+            
+            <label for="end_port">End Port:</label>
+            <input type="number" id="end_port" name="end_port" value="1024" min="1" max="65535" required>
+
+            <button type="submit">Scan</button>
+        </form>
+
+        {% if scan_results %}
+        <h2>Scan Results:</h2>
+        {% for ip, open_ports in scan_results.items() %}
+        <h3>IP: {{ ip }}</h3>
+        <ul>
+            {% for port in open_ports %}
+                <li>Port {{ port }} is open.
+                    {% if port in vulnerabilities_report[ip] %}
+                        Probably that's a {{ vulnerabilities_report[ip][port][0] }} service.
+                        <br>Potential Vulnerabilities:
+                        <ul>
+                            {% for vuln in vulnerabilities_report[ip][port][1] %}
+                                <li>{{ vuln }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>
